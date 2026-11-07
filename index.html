@@ -123,7 +123,7 @@ function play(btn,name,sound,groupIndex){
  sayName(name,id,()=>{
   if(id!==token)return;
   if(groupIndex===2||groupIndex===3||groupIndex===4){finish(btn,id);return}
-  if(sound){status.textContent='Escucha el sonido';playSound(sound,id,()=>finish(btn,id))}
+  if(sound){status.textContent='Escucha el sonido';playSound(sound,id,()=>{if(groupIndex===1&&name==='Bicicleta'){playSound(sound,id,()=>finish(btn,id))}else{finish(btn,id)}})}
   else finish(btn,id);
  });
 }
