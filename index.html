@@ -1,22 +1,135 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#75c9ef"><title>Juego para Elías</title>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#75c9ef">
+<title>Juego para Elías</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:linear-gradient(160deg,#b9ecff,#fff4c8);color:#234}header{text-align:center;padding:18px 12px 8px}h1{margin:0;font-size:clamp(26px,6vw,38px);color:#17658b}header p{margin:5px 0 12px;font-weight:600}.tabs{display:flex;gap:8px;overflow-x:auto;padding:8px 12px;justify-content:center;flex-wrap:wrap}.tab{border:0;border-radius:18px;padding:12px 16px;background:#fff;font-size:16px;font-weight:800;box-shadow:0 3px 8px #0002}.tab.active{background:#ffcb55;transform:scale(1.04)}#grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:12px;max-width:760px;margin:auto}.tile{border:0;border-radius:22px;background:white;min-height:138px;padding:12px 6px;box-shadow:0 5px 12px #0002;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:opacity .2s,transform .2s}.tile:active{transform:scale(.96)}.emoji{font-size:clamp(48px,13vw,76px);line-height:1.1}.word{font-size:19px;font-weight:850}.tile.playing{opacity:.35}.tile.done{animation:pop .35s}@keyframes pop{50%{transform:scale(1.08)}}footer{text-align:center;padding:10px 12px 24px;font-size:13px;color:#456}.sound{font-size:13px;font-weight:700;color:#38718a;min-height:18px}button{cursor:pointer}
-@media(min-width:600px){#grid{grid-template-columns:repeat(4,minmax(0,1fr))}.tile{min-height:170px}}@media(orientation:landscape) and (max-height:520px){header{padding:7px}.tabs{padding:3px}#grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.tile{min-height:112px}.emoji{font-size:42px}}
-</style></head><body><header><h1>🌟 Juego para Elías 🌟</h1><p>¡Toca, escucha y aprende!</p><div class="sound" id="status" aria-live="polite">Elige una categoría para comenzar</div></header>
-<nav class="tabs" id="tabs"></nav><main id="grid"></main><footer>Hecho con cariño para aprender jugando 💙</footer>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:linear-gradient(160deg,#b9ecff,#fff4c8);color:#234;min-height:100vh}
+header{text-align:center;padding:20px 12px 10px}
+h1{margin:0;font-size:clamp(27px,6vw,40px);color:#17658b}
+header p{margin:6px 0 12px;font-weight:650}
+#status{font-size:14px;font-weight:700;color:#38718a;min-height:20px}
+#home,#categoryView{max-width:900px;margin:auto;padding:12px}
+.homeTitle{text-align:center;font-size:21px;margin:8px 0 18px;color:#245b76}
+#categories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.category{border:0;border-radius:24px;background:white;min-height:155px;padding:18px 10px;box-shadow:0 5px 12px #0002;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:20px;font-weight:850;color:#234}
+.category .big{font-size:58px;line-height:1.1}
+.category:active,.tile:active{transform:scale(.97)}
+.toolbar{display:flex;align-items:center;gap:10px;margin:4px 0 12px}
+.back{border:0;border-radius:16px;padding:11px 16px;background:#fff;font-size:16px;font-weight:800;box-shadow:0 3px 8px #0002}
+#categoryTitle{font-size:22px;font-weight:900;color:#17658b;flex:1;text-align:center}
+#grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tile{border:0;border-radius:22px;background:white;min-height:138px;padding:12px 6px;box-shadow:0 5px 12px #0002;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:opacity .2s,transform .2s}
+.emoji{font-size:clamp(48px,13vw,76px);line-height:1.1}
+.word{font-size:19px;font-weight:850}
+.tile.playing{opacity:.35}
+.tile.done{animation:pop .35s}
+@keyframes pop{50%{transform:scale(1.08)}}
+footer{text-align:center;padding:12px 12px 24px;font-size:13px;color:#456}
+button{cursor:pointer}
+.hidden{display:none!important}
+@media(min-width:600px){#categories{grid-template-columns:repeat(4,minmax(0,1fr))}#grid{grid-template-columns:repeat(4,minmax(0,1fr))}.tile{min-height:170px}.category{min-height:185px}}
+@media(orientation:landscape) and (max-height:520px){header{padding:7px}.homeTitle{margin:4px 0 8px}#categories{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.category{min-height:110px}.category .big{font-size:40px}#grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.tile{min-height:112px}.emoji{font-size:42px}}
+</style>
+</head>
+<body>
+<header>
+<h1>🌟 Juego para Elías 🌟</h1>
+<p>¡Toca, escucha y aprende!</p>
+<div id="status" aria-live="polite">Elige una categoría para comenzar</div>
+</header>
+<main id="home">
+<div class="homeTitle">¿Qué quieres aprender hoy?</div>
+<div id="categories"></div>
+</main>
+<main id="categoryView" class="hidden">
+<div class="toolbar"><button class="back" id="backBtn">← Inicio</button><div id="categoryTitle"></div></div>
+<div id="grid"></div>
+</main>
+<footer>Hecho con cariño para aprender jugando 💙</footer>
 <script>
 const groups=[
-{name:'🐾 Animales',items:[['🐶','Perro','Guau, guau'],['🐱','Gato','Miau'],['🐮','Vaca','Muuu'],['🦁','León','Grrrr'],['🐘','Elefante','Prrrr'],['🐵','Mono','Uu, uu'],['🐸','Rana','Croac, croac'],['🐔','Gallina','Co, co, co'],['🦆','Pato','Cuac, cuac'],['🐑','Oveja','Beee']]},
-{name:'🚗 Transportes',items:[['🚗','Carro','Brrrum, brrrum'],['🚌','Autobús','Piiii'],['🚒','Camión de bomberos','Nino, nino'],['🚑','Ambulancia','Nino, nino'],['🚲','Bicicleta','Ruedas girando'],['🚂','Tren','Chucu, chucu'],['✈️','Avión','Fuuuu'],['🚀','Cohete','Despegando: tres, dos, uno']]},
-{name:'🍎 Frutas',items:[['🍎','Manzana','Manzana'],['🍌','Guineo','Guineo'],['🍊','Naranja','Naranja'],['🍇','Uvas','Uvas'],['🍓','Fresa','Fresa'],['🍍','Piña','Piña'],['🥭','Mango','Mango'],['🍉','Sandía','Sandía']]},
-{name:'🔤 Vocales',items:[['🅰️','A','Aaaa'],['🅴','E','Eeee'],['ℹ️','I','Iiii'],['🅾️','O','Oooo'],['🇺','U','Uuuu']]}
+{name:'Animales',icon:'🐾',items:[
+['🐶','Perro','https://sfxmint.com/dl/animal-dog-bark-25.mp3'],
+['🐱','Gato','https://sfxmint.com/dl/animal-cat-meow-34.mp3'],
+['🐮','Vaca','https://sfxmint.com/dl/cow-moo-02.mp3'],
+['🦁','León','https://sfxmint.com/dl/lion-roar-02.mp3'],
+['🐘','Elefante','https://sfxmint.com/dl/elephant-trumpet-01.mp3'],
+['🐵','Mono','https://sfxmint.com/dl/monkey-chatter-01.mp3'],
+['🐸','Rana','https://sfxmint.com/dl/animal-frog-14.mp3'],
+['🐔','Gallina','https://sfxmint.com/dl/hen-cluck-02.mp3'],
+['🦆','Pato','https://sfxmint.com/dl/duck-quack-02.mp3'],
+['🐑','Oveja','https://sfxmint.com/dl/sheep-bleat-02.mp3']
+]},
+{name:'Transportes',icon:'🚗',items:[
+['🚗','Carro','https://sfxmint.com/dl/car-revving-01.mp3'],
+['🚌','Autobús','https://sfxmint.com/dl/bus-engine-01.mp3'],
+['🚒','Camión de bomberos','https://sfxmint.com/dl/firetruck-siren-01.mp3'],
+['🚑','Ambulancia','https://sfxmint.com/dl/siren-01.mp3'],
+['🚲','Bicicleta','https://sfxmint.com/dl/growth-2a135207337ea0dfde1a13bc-part-1-v2.mp3'],
+['🚂','Tren','https://sfxmint.com/dl/growth-4068aa3a3f527a2a38555ad2-part-1-v1.mp3'],
+['✈️','Avión','https://sfxmint.com/dl/airplane-engine-01.mp3'],
+['🚀','Cohete',null]
+]},
+{name:'Frutas',icon:'🍎',items:[
+['🍎','Manzana',null],['🍌','Guineo',null],['🍊','Naranja',null],['🍇','Uvas',null],['🍓','Fresa',null],['🍍','Piña',null],['🥭','Mango',null],['🍉','Sandía',null]
+]},
+{name:'Vocales',icon:'🔤',items:[
+['🅰️','A',null],['🅴','E',null],['ℹ️','I',null],['🅾️','O',null],['🇺','U',null]
+]}
 ];
-let current=0,utterance=null,token=0;
-const tabs=document.getElementById('tabs'),grid=document.getElementById('grid'),status=document.getElementById('status');
-function render(){tabs.innerHTML='';groups.forEach((g,i)=>{let b=document.createElement('button');b.className='tab'+(i===current?' active':'');b.textContent=g.name;b.onclick=()=>{stop();current=i;render()};tabs.appendChild(b)});grid.innerHTML='';groups[current].items.forEach(([emoji,name,sound])=>{let b=document.createElement('button');b.className='tile';b.innerHTML='<span class="emoji">'+emoji+'</span><span class="word">'+name+'</span>';b.onclick=()=>play(b,name,sound);grid.appendChild(b)})}
-function speak(text,rate,done,id){if(!('speechSynthesis'in window)){status.textContent=text;setTimeout(()=>{if(id===token)done()},1200);return}let u=new SpeechSynthesisUtterance(text);u.lang='es-DO';u.rate=rate;u.pitch=1.05;u.onend=()=>{if(id===token)done()};u.onerror=()=>{if(id===token)done()};utterance=u;speechSynthesis.speak(u)}
-function stop(){token++;if('speechSynthesis'in window)speechSynthesis.cancel();document.querySelectorAll('.tile').forEach(x=>x.classList.remove('playing'));status.textContent='Elige algo para aprender'}
-function play(btn,name,sound){stop();const id=token;btn.classList.add('playing');status.textContent='Escucha: '+name;speak(name,0.88,()=>{status.textContent='Sonido: '+sound;speak(sound,0.95,()=>{if(id!==token)return;btn.classList.remove('playing');btn.classList.add('done');setTimeout(()=>btn.classList.remove('done'),400);status.textContent='¡Muy bien! Toca otro elemento'},id)},id)}
-render();
-</script></body></html>
+let token=0,activeAudio=null,currentGroup=0;
+const home=document.getElementById('home'),categoryView=document.getElementById('categoryView');
+const categories=document.getElementById('categories'),grid=document.getElementById('grid');
+const status=document.getElementById('status'),categoryTitle=document.getElementById('categoryTitle');
+function stop(){token++;if('speechSynthesis'in window)speechSynthesis.cancel();if(activeAudio){activeAudio.pause();activeAudio.currentTime=0;activeAudio=null}document.querySelectorAll('.tile').forEach(x=>x.classList.remove('playing'));status.textContent='Elige algo para aprender'}
+function renderHome(){
+ stop();home.classList.remove('hidden');categoryView.classList.add('hidden');
+ categories.innerHTML='';
+ groups.forEach((g,i)=>{const b=document.createElement('button');b.className='category';b.innerHTML='<span class="big">'+g.icon+'</span><span>'+g.name+'</span>';b.onclick=()=>openGroup(i);categories.appendChild(b)});
+ status.textContent='Elige una categoría para comenzar';
+}
+function openGroup(i){
+ stop();currentGroup=i;home.classList.add('hidden');categoryView.classList.remove('hidden');
+ categoryTitle.textContent=groups[i].name;grid.innerHTML='';
+ groups[i].items.forEach(([emoji,name,sound])=>{
+  const b=document.createElement('button');b.className='tile';
+  b.innerHTML='<span class="emoji">'+emoji+'</span><span class="word">'+name+'</span>';
+  b.onclick=()=>play(b,name,sound,i);grid.appendChild(b);
+ });
+ status.textContent='Toca un elemento para escucharlo';
+}
+function sayName(name,id,done){
+ if(!('speechSynthesis'in window)){done();return}
+ const u=new SpeechSynthesisUtterance(name);u.lang='es-DO';u.rate=.88;u.pitch=1.05;
+ u.onend=()=>{if(id===token)done()};u.onerror=()=>{if(id===token)done()};
+ speechSynthesis.speak(u);
+}
+function playSound(url,id,done){
+ if(!url){done();return}
+ const a=new Audio(url);a.volume=.72;activeAudio=a;
+ a.onended=()=>{if(id===token){activeAudio=null;done()}};
+ a.onerror=()=>{if(id===token){activeAudio=null;status.textContent='No se pudo cargar el sonido';done()}};
+ const p=a.play();if(p&&p.catch)p.catch(()=>{if(id===token){activeAudio=null;status.textContent='No se pudo reproducir el sonido';done()}});
+}
+function play(btn,name,sound,groupIndex){
+ stop();const id=token;btn.classList.add('playing');status.textContent='Escucha: '+name;
+ sayName(name,id,()=>{
+  if(id!==token)return;
+  if(groupIndex===2||groupIndex===3){finish(btn,id);return}
+  if(sound){status.textContent='Escucha el sonido';playSound(sound,id,()=>finish(btn,id))}
+  else finish(btn,id);
+ });
+}
+function finish(btn,id){
+ if(id!==token)return;btn.classList.remove('playing');btn.classList.add('done');
+ setTimeout(()=>btn.classList.remove('done'),400);status.textContent='¡Muy bien! Toca otro elemento';
+}
+document.getElementById('backBtn').onclick=renderHome;
+renderHome();
+</script>
+</body>
+</html>
